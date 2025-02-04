@@ -1,3 +1,13 @@
+---
+title: 52_Create_USB_UEFI
+description: 
+published: true
+date: 2025-02-04T22:11:44.779Z
+tags: 
+editor: markdown
+dateCreated: 2025-02-04T22:09:16.260Z
+---
+
 # Create USB UEFI
 
 **Categoria:** Base de Conhecimento >> Windows >> Client Edition
