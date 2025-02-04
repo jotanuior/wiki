@@ -1,13 +1,3 @@
----
-title: 33_Imapsync_dicas_para_selecionar_mensagens
-description: 
-published: true
-date: 2025-02-04T22:12:16.307Z
-tags: 
-editor: markdown
-dateCreated: 2025-02-04T22:12:13.207Z
----
-
 # Imapsync dicas para selecionar mensagens
 
 **Categoria:** Base de Conhecimento >> Linux
