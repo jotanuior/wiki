@@ -1,40 +1,39 @@
 import os
 import re
-import unidecode
+import subprocess
 
-def sanitize_filename(filename, max_length=20):
-    """
-    Remove caracteres especiais, mantém apenas letras, números e underscores.
-    Limita o nome a um máximo de 20 caracteres mantendo a relação com o original.
-    """
-    name, ext = os.path.splitext(filename)  # Separa o nome da extensão
-    
-    # Remove acentos e caracteres especiais
-    name = unidecode.unidecode(name)  # Remove acentos
-    name = re.sub(r'[^a-zA-Z0-9]', '_', name)  # Substitui caracteres especiais por _
-    
-    # Limita o tamanho do nome do arquivo
-    name = name[:max_length]
-    
-    return f"{name}{ext}"  # Reanexa a extensão
+def sanitize_filename(filename):
+    """Remove caracteres inválidos e substitui espaços por hifens."""
+    sanitized = re.sub(r'[^a-zA-Z0-9_.-]', '-', filename)  # Substitui caracteres inválidos
+    sanitized = sanitized.replace(' ', '-')  # Substitui espaços por hifens
+    return sanitized
 
-def rename_files_in_folder(root_folder):
-    """Percorre a pasta e subpastas renomeando os arquivos conforme as regras definidas."""
-    for folder, subfolders, files in os.walk(root_folder):
-        for file in files:
-            old_path = os.path.join(folder, file)
-            new_name = sanitize_filename(file)
-            new_path = os.path.join(folder, new_name)
-            
-            if old_path != new_path:
-                try:
-                    os.rename(old_path, new_path)
-                    print(f"Renomeado: {old_path} -> {new_path}")
-                except Exception as e:
-                    print(f"Erro ao renomear {old_path}: {e}")
+def rename_invalid_files(repo_path):
+    """Renomeia arquivos e diretórios inválidos dentro do repositório."""
+    for root, dirs, files in os.walk(repo_path, topdown=False):
+        for name in files + dirs:
+            new_name = sanitize_filename(name)
+            if new_name != name:
+                old_path = os.path.join(root, name)
+                new_path = os.path.join(root, new_name)
+                os.rename(old_path, new_path)
+                print(f'Renomeado: {old_path} -> {new_path}')
+
+def sync_git_repo(repo_path):
+    """Confirma as mudanças no Git e as envia para o repositório remoto."""
+    try:
+        subprocess.run(['git', '-C', repo_path, 'add', '.'], check=True)
+        subprocess.run(['git', '-C', repo_path, 'commit', '-m', 'Corrigindo nomes de arquivos inválidos'], check=True)
+        subprocess.run(['git', '-C', repo_path, 'push'], check=True)
+        print("Alterações enviadas para o repositório remoto.")
+    except subprocess.CalledProcessError as e:
+        print(f"Erro ao sincronizar o repositório: {e}")
 
 if __name__ == "__main__":
-    pasta_alvo = input("Digite o caminho da pasta onde deseja renomear os arquivos: ")
-    rename_files_in_folder(pasta_alvo)
-    print("Processo concluído!")
+    repo_path = input("Digite o caminho do repositório Git local: ")
+    if os.path.exists(repo_path):
+        rename_invalid_files(repo_path)
+        sync_git_repo(repo_path)
+    else:
+        print("Caminho inválido. Verifique se o repositório existe.")
 
