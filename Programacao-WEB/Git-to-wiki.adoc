@@ -1,0 +1,66 @@
+== Manual de Conexão do Wiki.js com o GitHub via SSH
+
+Manual de Conexão do Wiki.js com o GitHub via SSH
+Este manual descreve como configurar o Wiki.js para importar a estrutura do GitHub utilizando
+SSH, incluindo o procedimento de conexão via chave privada.
+
+=== Gerando a Chave SSH (No Servidor)
+
+1. Acesse o servidor onde o Wiki.js está instalado.
+2. Execute o seguinte comando para gerar uma nova chave SSH:
+ssh-keygen -t rsa -b 4096 -C "seu-email@dominio.com"
+3. Quando solicitado um local para salvar a chave, utilize o caminho padrão ou defina
+manualmente:
+/home/usuario/.ssh/id_rsa
+4. IMPORTANTE: Não defina uma senha para a chave privada.
+5. Copie a chave pública gerada para o GitHub:
+cat /home/usuario/.ssh/id_rsa.pub
+6. No GitHub, adicione a chave pública em:
+- Settings > SSH and GPG Keys > New SSH Key
+- Cole a chave e salve.
+
+=== Configurando o Repositório no Wiki.js (No Servidor)
+
+1. Acesse a interface administrativa do Wiki.js.
+2. Navegue até Storage e selecione Git.
+3. Configure os seguintes campos:
+- Authentication Type: ssh
+- Repository URL: git@github.com:SEU_USUARIO/SEU_REPOSITORIO.git
+- Branch: main (ou a branch principal do repositório)
+- SSH Private Key Mode: contents
+- SSH Private Key Contents: Copie o conteúdo da chave privada:
+cat /home/usuario/.ssh/id_rsa
+Cole no campo SSH Private Key Contents.
+
+- Verify SSL Certificate: ativado (recomendado para segurança)
+- Username / Password / PAT: Deixe em branco (pois estamos usando SSH)
+- Default Author Email: seu-email@dominio.com
+- Default Author Name: Seu Nome
+- Local Repository Path: /data/repo
+- Salve as configurações e teste a conexão.
+  
+
+=== Testando a Conexão (No Servidor)
+
+- Verifique se a chave SSH está funcionando:
+- ssh -T git@github.com
+
+- Se configurado corretamente, a resposta será:
+Hi SEU_USUARIO! You've successfully authenticated, but GitHub does not provide shell access.
+
+. Caso tenha problemas, certifique-se de que as permissões estão corretas:
+chmod 600 /home/usuario/.ssh/id_rsa
+. Solução de Problemas
+- "Permission denied (publickey)": Verifique se a chave está adicionada no GitHub e se o Wiki.js
+está utilizando a chave correta.
+- "Repository not found": Confirme se o repositório foi clonado corretamente e se a URL do Git está
+correta.
+- Erros de permissão: Use chmod para corrigir as permissões da chave privada.
+
+=== Atualização e Sincronização do Wiki.js
+
+- Para sincronizar manualmente com o repositório do GitHub, acesse a interface do Wiki.js, na
+seção Storage, e clique em Sync Now.
+
+- O Wiki.js irá atualizar automaticamente conforme as configurações de sincronização definidas.
+Com essas configurações, o Wiki.js estará integrado ao GitHub via SSH, garantindo segurança e
